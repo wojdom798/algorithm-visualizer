@@ -6,12 +6,19 @@ function AlgorithmVisualiser(app_root_id) {
 
   this.startBtn = null;
   this.resetBtn = null;
+  this.clearBtn = null;
 
   this.randomInt = function(min, max) {
     return min + Math.floor((max - min) * Math.random());
   };
 
   this.generateRandom = function(n, r) {
+    if (this.canvas.children.length !== 0) {
+      for (childNode of this.canvas.children) {
+        this.canvas.removeChild(childNode);
+      }
+    }
+
     this.mappedPoints = new Array(this.canvas.clientWidth - r*2);
     // console.log(this.mappedPoints.length);
   
@@ -70,6 +77,12 @@ function AlgorithmVisualiser(app_root_id) {
     }
   };
 
+  this.clearCanvas = function() {
+    // for (item of this.canvas.children) {
+    //   this.canvas.removeChild(item);
+    // }
+    this.canvas.innerHTML = '';
+  };
 
   this.randomizeDatapoints = function() {
     this.generateRandom(300, 3);
@@ -93,9 +106,11 @@ function AlgorithmVisualiser(app_root_id) {
 
     this.startBtn = document.getElementById("start-btn");
     this.resetBtn = document.getElementById("reset-btn");
+    this.clearBtn = document.getElementById("clear-btn");
 
     this.startBtn.addEventListener("click", this.startAlgorithm.bind(this));
     this.resetBtn.addEventListener("click", this.randomizeDatapoints.bind(this));
+    this.clearBtn.addEventListener("click", this.clearCanvas.bind(this));
     
 
   };
