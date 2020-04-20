@@ -4,20 +4,8 @@ function AlgorithmVisualiser(app_root_id) {
   this.menuBar = null;
   this.mappedPoints = null;
 
-  this.init = function() {
-    this.appRoot = document.getElementById(app_root_id);
-    if (this.appRoot === null) {
-      throw "Root element does not exist.";
-    }
-
-    // let menuFragment = document.createDocumentFragment();
-    // let canvasFragment = document.createDocumentFragment();
-
-    this.canvas = this.appRoot.children[1];
-    // console.log(this.canvas);
-    
-
-  };
+  this.startBtn = null;
+  this.resetBtn = null;
 
   this.randomInt = function(min, max) {
     return min + Math.floor((max - min) * Math.random());
@@ -80,12 +68,41 @@ function AlgorithmVisualiser(app_root_id) {
         }
       }
     }
-    // console.log("bubble sort done.");
+  };
+
+
+  this.randomizeDatapoints = function() {
+    this.generateRandom(300, 3);
+  };
+
+  this.startAlgorithm = function() {
+    this.bubbleSort();
+  };
+
+  this.init = function() {
+    this.appRoot = document.getElementById(app_root_id);
+    if (this.appRoot === null) {
+      throw "Root element does not exist.";
+    }
+
+    // let menuFragment = document.createDocumentFragment();
+    // let canvasFragment = document.createDocumentFragment();
+
+    this.canvas = this.appRoot.children[1];
+    // console.log(this.canvas);
+
+    this.startBtn = document.getElementById("start-btn");
+    this.resetBtn = document.getElementById("reset-btn");
+
+    this.startBtn.addEventListener("click", this.startAlgorithm.bind(this));
+    this.resetBtn.addEventListener("click", this.randomizeDatapoints.bind(this));
+    
+
   };
 };
 
 
 const av = new AlgorithmVisualiser("app-root");
 av.init();
-av.generateRandom(300, 3);
-av.bubbleSort();
+// av.generateRandom(300, 3);
+// av.bubbleSort();
