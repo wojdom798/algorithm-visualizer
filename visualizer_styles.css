@@ -27,10 +27,76 @@ body {
   background-color: #333;
 }
 
+#algorithm-picker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: #444;
+  height: 35px;
+  transition: background-color .2s linear;
+}
+
+#algorithm-picker:hover {
+  background-color: #222;
+}
+
+#algorithm-picker h5 {
+  margin: 0;
+  padding: 5px 10px;
+  font-size: .97rem;
+  color: #999;
+}
+
+#algorithm-picker ul {
+  position: absolute;
+  z-index: 2000;
+  top: 42px;
+  left: 0;
+  min-width: 200px;
+  display: none;
+  list-style: none;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #111;
+  /* align-items: center; */
+  color: #777;
+}
+
+#algorithm-picker ul:after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -5px;
+  left: 40px;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  background-color: #111;
+}
+
+#algorithm-picker ul.active {
+  display: flex;
+}
+
+#algorithm-picker ul li {
+  display: inline-block;
+  padding: 9px;
+  cursor: pointer;
+  transition: background-color .2s linear;
+}
+
+#algorithm-picker ul li:hover {
+  background-color: #22f;
+  color: #fff;
+}
+
 #app-root .menu-bar button {
   margin-left: 10px;
   padding: 5px;
-  width: 70px;
+  min-width: 70px;
   height: 35px;
   outline: none;
   background-color: rgb(7, 86, 206);

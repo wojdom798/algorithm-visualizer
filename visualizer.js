@@ -4,6 +4,10 @@ function AlgorithmVisualiser(app_root_id) {
   this.menuBar = null;
   this.mappedPoints = null;
 
+  this.algorithmPicker = null;
+  this.isAlgorithmPickerActive = false;
+  this.currentAlgorithm = "Bubble Sort";
+
   this.startBtn = null;
   this.resetBtn = null;
   this.clearBtn = null;
@@ -14,9 +18,10 @@ function AlgorithmVisualiser(app_root_id) {
 
   this.generateRandom = function(n, r) {
     if (this.canvas.children.length !== 0) {
-      for (childNode of this.canvas.children) {
-        this.canvas.removeChild(childNode);
-      }
+      // for (childNode of this.canvas.children) {
+      //   this.canvas.removeChild(childNode);
+      // }
+      this.canvas.innerHTML = '';
     }
 
     this.mappedPoints = new Array(this.canvas.clientWidth - r*2);
@@ -77,6 +82,35 @@ function AlgorithmVisualiser(app_root_id) {
     }
   };
 
+  this.elementPicked = function(ev) {
+    // children[0] === <h5>
+    this.algorithmPicker.children[0].textContent = ev.target.textContent;
+    this.currentAlgorithm = ev.target.textContent;
+  };
+
+  this.algoPickerDropdown = function(ev) {
+    switch (ev.type) {
+      case "click":
+        if (this.isAlgorithmPickerActive) {
+          this.algorithmPicker.children[1].classList.remove("active");
+          this.isAlgorithmPickerActive = false;
+        } else {
+          this.algorithmPicker.children[1].classList.add("active");
+          this.isAlgorithmPickerActive = true;
+        }
+      case "mouseover":
+        // this.algorithmPicker.children[1].classList.add("active");
+        break;
+      case "mouseout":
+        // this.algorithmPicker.children[1].classList.remove("active");
+        break;
+      
+      default:
+        console.log("default event");
+    }
+  };
+
+
   this.clearCanvas = function() {
     // for (item of this.canvas.children) {
     //   this.canvas.removeChild(item);
@@ -85,11 +119,20 @@ function AlgorithmVisualiser(app_root_id) {
   };
 
   this.randomizeDatapoints = function() {
-    this.generateRandom(300, 3);
+    switch (this.currentAlgorithm) {
+      case "Bubble Sort":
+        this.generateRandom(300, 3);
+        break;
+    }
+    
   };
 
   this.startAlgorithm = function() {
-    this.bubbleSort();
+    switch (this.currentAlgorithm) {
+      case "Bubble Sort":
+        this.bubbleSort();
+        break;
+    }
   };
 
   this.init = function() {
@@ -103,6 +146,17 @@ function AlgorithmVisualiser(app_root_id) {
 
     this.canvas = this.appRoot.children[1];
     // console.log(this.canvas);
+
+    this.algorithmPicker = document.getElementById("algorithm-picker");
+    this.algorithmPicker.addEventListener("mouseover", this.algoPickerDropdown.bind(this));
+    this.algorithmPicker.addEventListener("mouseout", this.algoPickerDropdown.bind(this));
+    this.algorithmPicker.addEventListener("click", this.algoPickerDropdown.bind(this));
+
+    const listElements = this.algorithmPicker.children[1].children;
+    for (elem of listElements) {
+      elem.addEventListener("click", this.elementPicked.bind(this));
+    }
+    
 
     this.startBtn = document.getElementById("start-btn");
     this.resetBtn = document.getElementById("reset-btn");
