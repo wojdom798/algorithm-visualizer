@@ -12,8 +12,135 @@ function AlgorithmVisualiser(app_root_id) {
   this.resetBtn = null;
   this.clearBtn = null;
 
+  this.gridRows = 20;
+  this.gridColumns = 50;
+  this.dijkstraStart = 458;
+  this.dijkstraEnd = 445;
+  this.isCellMsDown = false;
+  this.grid = null;
+  this.adjacencyList = null;
+
+
   this.randomInt = function(min, max) {
     return min + Math.floor((max - min) * Math.random());
+  };
+
+
+  this.dijkstraShortestPath = function() {
+    let visited = [];
+    let distances = [];
+    let count = 1;  
+    for (let i = 0; i < this.gridRows * this.gridColumns; i++) {
+      if (count++ === this.dijkstraStart) {
+        visited.push(0);
+      } else {
+        visited.push(Number.POSITIVE_INFINITY);
+      }
+    }
+
+    distances.push({
+      "nodeId": this.dijkstraStart,
+      "distance": 0
+    });
+
+  };
+
+
+
+
+  // display all neighbors for a given cell in the grid
+  this.gridShowNeighbors = function(cellId, color_hex = "2222ff") {
+    let neighbors = [];
+    const currentRow = Math.floor(cellId / this.gridColumns);
+    // row of the right cell
+    const rightRow = Math.floor((cellId + 1) / this.gridColumns);
+    // row of the left cell
+    const leftRow = Math.floor((cellId - 1) / this.gridColumns);
+    const gridLen = this.gridRows * this.gridColumns;
+    // neighbor above
+    if ( (cellId - this.gridColumns) > 0 ) {
+      neighbors.push(cellId - this.gridColumns);
+    } else {
+      neighbors.push(false);
+    }
+    // to the right
+    if ( (cellId + 1 < gridLen) && currentRow === rightRow ) {
+      neighbors.push(cellId + 1);
+    } else {
+      neighbors.push(false);
+    }
+    // below
+    if ( (cellId + this.gridColumns) < gridLen ) {
+      neighbors.push(cellId + this.gridColumns);
+    } else {
+      neighbors.push(false);
+    }
+    // to the left
+    if ( (cellId - 1 >= 0) && currentRow === leftRow ) {
+      neighbors.push(cellId - 1);
+    } else {
+      neighbors.push(false);
+    }
+
+    neighbors.forEach(neighbor => {
+      if (neighbor !== false) {
+        this.grid[neighbor].style.backgroundColor = "#" + color_hex;
+      }
+    });
+
+    this.grid[cellId].style.backgroundColor = "#fff";
+  };
+
+  this.cellMsDown = function(ev) {
+    if (ev.target.getAttribute("cell-id") == this.dijkstraStart) {
+      ev.target.classList.add("grabbing");
+      this.isCellMsDown = true;
+    }
+
+    this.gridShowNeighbors(Number(ev.target.getAttribute("cell-id")));
+  };
+
+  this.cellMsUp = function(ev) {
+    if (ev.target.getAttribute("cell-id") == this.dijkstraStart) {
+      ev.target.classList.remove("grabbing");
+      this.isCellMsDown = false;
+    }
+
+    this.gridShowNeighbors(Number(ev.target.getAttribute("cell-id")), "transparent");
+  };
+
+  this.generateGrid = function(rows, columns) {
+    // 1. create a div container
+    // and initialize the adjacency list
+    const grid = document.createElement("div");
+    grid.classList.add("grid-container");
+
+    const fragment = document.createDocumentFragment();
+
+    this.adjacencyList = new Array(rows*columns);
+
+    // 2. create 'div' cells
+    // each cell will be assigned an id in the range: <0 ; rows*columns)
+    for (let i = 0; i < rows * columns; i++) {
+      let cell = document.createElement("div");
+      cell.classList.add("grid-cell");
+      if (i === this.dijkstraStart) {
+        cell.classList.add("start");
+      }
+      if (i === this.dijkstraEnd) {
+        cell.classList.add("end");
+      }
+      cell.setAttribute("cell-id", i);
+      cell.addEventListener("mousedown", this.cellMsDown.bind(this));
+      cell.addEventListener("mouseup", this.cellMsUp.bind(this));
+      fragment.appendChild(cell);
+    }
+
+    grid.appendChild(fragment);
+    this.canvas.appendChild(grid);
+    this.grid = grid.children; // list of nodes
+
+    // this.gridShowNeighbors(450);
   };
 
   this.generateRandom = function(n, r) {
@@ -86,6 +213,15 @@ function AlgorithmVisualiser(app_root_id) {
     // children[0] === <h5>
     this.algorithmPicker.children[0].textContent = ev.target.textContent;
     this.currentAlgorithm = ev.target.textContent;
+    switch (this.currentAlgorithm) {
+      case "Bubble Sort":
+        this.clearCanvas();
+        break;
+      case "Dijkstra's Shortest Path":
+        this.clearCanvas();
+        this.generateGrid(this.gridRows, this.gridColumns);
+        break;
+    }
   };
 
   this.algoPickerDropdown = function(ev) {
@@ -132,7 +268,12 @@ function AlgorithmVisualiser(app_root_id) {
       case "Bubble Sort":
         this.bubbleSort();
         break;
+      case "Dijkstra's Shortest Path":
+        this.dijkstraShortestPath();
+        break;
     }
+
+    
   };
 
   this.init = function() {
