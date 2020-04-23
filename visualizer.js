@@ -84,11 +84,15 @@ function AlgorithmVisualiser(app_root_id) {
 
     neighbors.forEach(neighbor => {
       if (neighbor !== false) {
-        this.grid[neighbor].style.backgroundColor = "#" + color_hex;
+        if (color_hex === "transparent") {
+          this.grid[neighbor].style.backgroundColor = color_hex;
+          this.grid[cellId].style.backgroundColor = color_hex;
+        } else {
+          this.grid[neighbor].style.backgroundColor = "#" + color_hex;
+          this.grid[cellId].style.backgroundColor = "#fff";
+        } 
       }
     });
-
-    this.grid[cellId].style.backgroundColor = "#fff";
   };
 
   this.cellMsDown = function(ev) {
