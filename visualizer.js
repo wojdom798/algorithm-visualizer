@@ -19,7 +19,7 @@ function AlgorithmVisualiser(app_root_id) {
   // this.dijkstraStart = 458;
   // this.dijkstraEnd = 445;
   this.dijkstraStart = 950;
-  this.dijkstraEnd = 391;
+  this.dijkstraEnd = 803;
   this.isCellMsDown = false;
   this.grid = null;
   this.adjacencyList = null;
@@ -92,14 +92,14 @@ function AlgorithmVisualiser(app_root_id) {
 
     console.log(distances);
     let previous = distances[this.dijkstraEnd][0];
-    let i = 0;
+    let i = 1;
     while (previous != this.dijkstraStart) {
       console.log("prev: " + previous);
       // setTimeout(function() {
         this.grid[previous].style.backgroundColor = "#2222ff";
       // }.bind(this), 100 + i);
       previous = distances[previous][0];
-      i += 10;
+      i++;
     }
     this.grid[previous].style.backgroundColor = "#2222ff";
   };
@@ -118,6 +118,14 @@ function AlgorithmVisualiser(app_root_id) {
     if ( (cellId + 1 < gridLen) && currentRow === rightRow ) {
       neighbors.push(cellId + 1);
     }
+    // top right
+    if ( ((cellId - this.gridColumns) > 0) &&  Math.floor((cellId - this.gridColumns + 1) / this.gridColumns) === currentRow - 1 ) {
+      neighbors.push(cellId - this.gridColumns + 1);
+    }
+    // top left
+    if ( ((cellId - this.gridColumns) > 0) &&  ((cellId - this.gridColumns - 1) >= 0) && (Math.floor((cellId - this.gridColumns - 1) / this.gridColumns) === currentRow - 1 ) ) {
+      neighbors.push(cellId - this.gridColumns - 1);
+    }
     // below
     if ( (cellId + this.gridColumns) < gridLen ) {
       neighbors.push(cellId + this.gridColumns);
@@ -125,6 +133,14 @@ function AlgorithmVisualiser(app_root_id) {
     // to the left
     if ( (cellId - 1 >= 0) && currentRow === leftRow ) {
       neighbors.push(cellId - 1);
+    }
+    // bottom right
+    if ( ((cellId + this.gridColumns) < gridLen) && ((cellId + this.gridColumns + 1) < gridLen) && (Math.floor((cellId + this.gridColumns + 1) / this.gridColumns) === currentRow + 1 ) ) {
+      neighbors.push(cellId + this.gridColumns + 1);
+    }
+    // bottom left
+    if (((cellId + this.gridColumns) < gridLen) && Math.floor((cellId + this.gridColumns - 1) / this.gridColumns) === currentRow + 1 ) {
+      neighbors.push(cellId + this.gridColumns - 1);
     }
 
     return neighbors;
@@ -183,7 +199,10 @@ function AlgorithmVisualiser(app_root_id) {
       this.isCellMsDown = true;
     }
 
-    this.gridShowNeighbors(Number(ev.target.getAttribute("cell-id")));
+    // this.gridShowNeighbors(Number(ev.target.getAttribute("cell-id")));
+    this.cellGetNeighbors(Number(ev.target.getAttribute("cell-id"))).forEach(n => {
+      this.grid[n].style.backgroundColor = "#33f";
+    });
   };
 
   this.cellMsUp = function(ev) {
@@ -192,7 +211,10 @@ function AlgorithmVisualiser(app_root_id) {
       this.isCellMsDown = false;
     }
 
-    this.gridShowNeighbors(Number(ev.target.getAttribute("cell-id")), "transparent");
+    // this.gridShowNeighbors(Number(ev.target.getAttribute("cell-id")), "transparent");
+    this.cellGetNeighbors(Number(ev.target.getAttribute("cell-id"))).forEach(n => {
+      this.grid[n].style.backgroundColor = "transparent";
+    });
   };
 
   this.generateGrid = function(rows, columns) {
