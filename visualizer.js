@@ -16,8 +16,10 @@ function AlgorithmVisualiser(app_root_id) {
   this.gridColumns = 50;
   // this.dijkstraStart = 0;
   // this.dijkstraEnd = 460;
-  this.dijkstraStart = 458;
-  this.dijkstraEnd = 445;
+  // this.dijkstraStart = 458;
+  // this.dijkstraEnd = 445;
+  this.dijkstraStart = 950;
+  this.dijkstraEnd = 391;
   this.isCellMsDown = false;
   this.grid = null;
   this.adjacencyList = null;
@@ -53,22 +55,22 @@ function AlgorithmVisualiser(app_root_id) {
     q.push(current);
     let count = 0;
     do {
-      console.log("current: " + current);
-      console.log(q);
+      // console.log("current: " + current);
+      // console.log(q);
       this.adjacencyList[current].forEach(neighbor => {
         // console.log(neighbor[0]);
         if ( (visited[neighbor[0]] === false) && !q.includes(neighbor[0]) ) {
-          console.log("enqueueing: " + neighbor[0]);
+          // console.log("enqueueing: " + neighbor[0]);
           q.push(neighbor[0]); // enqueue each neighbor's id
           if (distances[neighbor[0]][1] > distances[current][1] + neighbor[1]) {
             distances[neighbor[0]][1] = distances[current][1] + neighbor[1];
             distances[neighbor[0]][0] = current;
           }
         } else {
-          console.log("already visited: " + neighbor[0]);
+          // console.log("already visited: " + neighbor[0]);
         }
       });
-      console.log("count = " + count);
+      // console.log("count = " + count);
 
 
       visited[current] = true;
@@ -78,17 +80,28 @@ function AlgorithmVisualiser(app_root_id) {
       if (q.length > 0) {
         current = q[0];
       } else {
-        console.log("queue is empty");
+        // console.log("queue is empty");
         break;
       }
       count++;
       if (count === 1000000) {
-        console.log("reached count limit");
+        // console.log("reached count limit");
         break;
       }
     } while ( (current != this.dijkstraEnd) && (q.length != 0) );
 
     console.log(distances);
+    let previous = distances[this.dijkstraEnd][0];
+    let i = 0;
+    while (previous != this.dijkstraStart) {
+      console.log("prev: " + previous);
+      // setTimeout(function() {
+        this.grid[previous].style.backgroundColor = "#2222ff";
+      // }.bind(this), 100 + i);
+      previous = distances[previous][0];
+      i += 10;
+    }
+    this.grid[previous].style.backgroundColor = "#2222ff";
   };
 
   this.cellGetNeighbors = function(cellId) {

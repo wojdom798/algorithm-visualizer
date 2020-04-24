@@ -152,11 +152,11 @@ body {
 }
 
 .grid-container .grid-cell.start {
-  background-color: #1d1;
+  background-color: #1d1 !important;
 }
 
 .grid-container .grid-cell.end {
-  background-color: #d11;
+  background-color: #d11 !important;
 }
 
 .grid-container .grid-cell.start:hover,
