@@ -57,7 +57,7 @@ function AlgorithmVisualiser(app_root_id) {
       console.log(q);
       this.adjacencyList[current].forEach(neighbor => {
         // console.log(neighbor[0]);
-        if ( (visited[neighbor[0]] === false)  ) {
+        if ( (visited[neighbor[0]] === false) && !q.includes(neighbor[0]) ) {
           console.log("enqueueing: " + neighbor[0]);
           q.push(neighbor[0]); // enqueue each neighbor's id
           if (distances[neighbor[0]][1] > distances[current][1] + neighbor[1]) {
