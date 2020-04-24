@@ -14,6 +14,8 @@ function AlgorithmVisualiser(app_root_id) {
 
   this.gridRows = 20;
   this.gridColumns = 50;
+  // this.dijkstraStart = 0;
+  // this.dijkstraEnd = 460;
   this.dijkstraStart = 458;
   this.dijkstraEnd = 445;
   this.isCellMsDown = false;
@@ -27,26 +29,93 @@ function AlgorithmVisualiser(app_root_id) {
 
 
   this.dijkstraShortestPath = function() {
-    let visited = [];
-    let distances = [];
-    let count = 1;  
-    for (let i = 0; i < this.gridRows * this.gridColumns; i++) {
-      if (count++ === this.dijkstraStart) {
-        visited.push(0);
-      } else {
-        visited.push(Number.POSITIVE_INFINITY);
-      }
+    const totalCells = this.gridRows * this.gridColumns;
+    let q = []; // queue
+    let visited = new Array(totalCells);
+    /*
+      distances = [
+        [previous cell id, distance]
+        ...
+      ]
+      where distances[0] -> distance from cell of id 0 to initial cell
+    */
+    let distances = new Array(totalCells);
+    for (let i = 0; i < totalCells; i++) {
+      let distTmp = new Array(2);
+      distTmp[0] = this.dijkstraStart; // previous cell
+      distTmp[1] = Number.POSITIVE_INFINITY; // distance
+      distances[i] = distTmp;
+      visited[i] = false;
     }
+    distances[this.dijkstraStart] = new Array(this.dijkstraStart, 0);
+    
+    let current = this.dijkstraStart;
+    q.push(current);
+    let count = 0;
+    do {
+      console.log("current: " + current);
+      console.log(q);
+      this.adjacencyList[current].forEach(neighbor => {
+        // console.log(neighbor[0]);
+        if ( (visited[neighbor[0]] === false)  ) {
+          console.log("enqueueing: " + neighbor[0]);
+          q.push(neighbor[0]); // enqueue each neighbor's id
+          if (distances[neighbor[0]][1] > distances[current][1] + neighbor[1]) {
+            distances[neighbor[0]][1] = distances[current][1] + neighbor[1];
+            distances[neighbor[0]][0] = current;
+          }
+        } else {
+          console.log("already visited: " + neighbor[0]);
+        }
+      });
+      console.log("count = " + count);
 
-    distances.push({
-      "nodeId": this.dijkstraStart,
-      "distance": 0
-    });
 
+      visited[current] = true;
+      this.grid[current].style.backgroundColor = "#ffd61f";
+      
+      q.shift();
+      if (q.length > 0) {
+        current = q[0];
+      } else {
+        console.log("queue is empty");
+        break;
+      }
+      count++;
+      if (count === 1000000) {
+        console.log("reached count limit");
+        break;
+      }
+    } while ( (current != this.dijkstraEnd) && (q.length != 0) );
+
+    console.log(distances);
   };
 
+  this.cellGetNeighbors = function(cellId) {
+    let neighbors = [];
+    const currentRow = Math.floor(cellId / this.gridColumns);
+    const rightRow = Math.floor((cellId + 1) / this.gridColumns);
+    const leftRow = Math.floor((cellId - 1) / this.gridColumns);
+    const gridLen = this.gridRows * this.gridColumns;
+    // neighbor above
+    if ( (cellId - this.gridColumns) > 0 ) {
+      neighbors.push(cellId - this.gridColumns);
+    }
+    // to the right
+    if ( (cellId + 1 < gridLen) && currentRow === rightRow ) {
+      neighbors.push(cellId + 1);
+    }
+    // below
+    if ( (cellId + this.gridColumns) < gridLen ) {
+      neighbors.push(cellId + this.gridColumns);
+    }
+    // to the left
+    if ( (cellId - 1 >= 0) && currentRow === leftRow ) {
+      neighbors.push(cellId - 1);
+    }
 
-
+    return neighbors;
+  };
 
   // display all neighbors for a given cell in the grid
   this.gridShowNeighbors = function(cellId, color_hex = "2222ff") {
@@ -138,6 +207,18 @@ function AlgorithmVisualiser(app_root_id) {
       cell.addEventListener("mousedown", this.cellMsDown.bind(this));
       cell.addEventListener("mouseup", this.cellMsUp.bind(this));
       fragment.appendChild(cell);
+
+      // contains distances from the current cell to all its neighbors
+      let distanceArray = [];
+      if (this.cellGetNeighbors(i)) {
+        this.cellGetNeighbors(i).forEach(neighbor => {
+          let tmp = [];
+          tmp.push(neighbor); // cell id
+          tmp.push(1); // distance = 1
+          distanceArray.push(tmp);
+        });
+      }
+      this.adjacencyList[i] = distanceArray;
     }
 
     grid.appendChild(fragment);
@@ -145,6 +226,7 @@ function AlgorithmVisualiser(app_root_id) {
     this.grid = grid.children; // list of nodes
 
     // this.gridShowNeighbors(450);
+    // console.log(this.adjacencyList);
   };
 
   this.generateRandom = function(n, r) {
