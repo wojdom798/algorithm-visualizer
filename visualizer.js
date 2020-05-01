@@ -18,11 +18,14 @@ function AlgorithmVisualiser(app_root_id) {
   // this.dijkstraEnd = 460;
   // this.dijkstraStart = 458;
   // this.dijkstraEnd = 445;
-  this.dijkstraStart = 950;
-  this.dijkstraEnd = 803;
+  this.dijkstraStart = 473;
+  this.dijkstraEnd = 765;
   this.isCellMsDown = false;
   this.grid = null;
   this.adjacencyList = null;
+
+  // Quick Sort
+  this.mappedRectangles = null;
 
 
   this.randomInt = function(min, max) {
@@ -119,13 +122,13 @@ function AlgorithmVisualiser(app_root_id) {
       neighbors.push(cellId + 1);
     }
     // top right
-    if ( ((cellId - this.gridColumns) > 0) &&  Math.floor((cellId - this.gridColumns + 1) / this.gridColumns) === currentRow - 1 ) {
-      neighbors.push(cellId - this.gridColumns + 1);
-    }
+    // if ( ((cellId - this.gridColumns) > 0) &&  Math.floor((cellId - this.gridColumns + 1) / this.gridColumns) === currentRow - 1 ) {
+    //   neighbors.push(cellId - this.gridColumns + 1);
+    // }
     // top left
-    if ( ((cellId - this.gridColumns) > 0) &&  ((cellId - this.gridColumns - 1) >= 0) && (Math.floor((cellId - this.gridColumns - 1) / this.gridColumns) === currentRow - 1 ) ) {
-      neighbors.push(cellId - this.gridColumns - 1);
-    }
+    // if ( ((cellId - this.gridColumns) > 0) &&  ((cellId - this.gridColumns - 1) >= 0) && (Math.floor((cellId - this.gridColumns - 1) / this.gridColumns) === currentRow - 1 ) ) {
+    //   neighbors.push(cellId - this.gridColumns - 1);
+    // }
     // below
     if ( (cellId + this.gridColumns) < gridLen ) {
       neighbors.push(cellId + this.gridColumns);
@@ -135,13 +138,13 @@ function AlgorithmVisualiser(app_root_id) {
       neighbors.push(cellId - 1);
     }
     // bottom right
-    if ( ((cellId + this.gridColumns) < gridLen) && ((cellId + this.gridColumns + 1) < gridLen) && (Math.floor((cellId + this.gridColumns + 1) / this.gridColumns) === currentRow + 1 ) ) {
-      neighbors.push(cellId + this.gridColumns + 1);
-    }
+    // if ( ((cellId + this.gridColumns) < gridLen) && ((cellId + this.gridColumns + 1) < gridLen) && (Math.floor((cellId + this.gridColumns + 1) / this.gridColumns) === currentRow + 1 ) ) {
+    //   neighbors.push(cellId + this.gridColumns + 1);
+    // }
     // bottom left
-    if (((cellId + this.gridColumns) < gridLen) && Math.floor((cellId + this.gridColumns - 1) / this.gridColumns) === currentRow + 1 ) {
-      neighbors.push(cellId + this.gridColumns - 1);
-    }
+    // if (((cellId + this.gridColumns) < gridLen) && Math.floor((cellId + this.gridColumns - 1) / this.gridColumns) === currentRow + 1 ) {
+    //   neighbors.push(cellId + this.gridColumns - 1);
+    // }
 
     return neighbors;
   };
@@ -306,6 +309,26 @@ function AlgorithmVisualiser(app_root_id) {
     }
   }; // /generateRandom()
 
+  this.generateRandomRectangles = function(n) {
+    let height;
+    let width = 30;
+    let offsetHeight = 100;
+    let container = document.createElement("div");
+    container.classList.add("data-point-container");
+    let fragment = document.createDocumentFragment();
+    for (let i = 0; i < n; i++) {
+      height = this.randomInt(0, offsetHeight * 4);
+      let dataPoint = document.createElement("div");
+      dataPoint.classList.add("data-point-rect");
+      dataPoint.style.width = width + "px";
+      dataPoint.style.height = offsetHeight + height + "px";
+      fragment.appendChild(dataPoint);
+    }
+    container.appendChild(fragment);
+    this.mappedRectangles = container.children;
+    this.canvas.appendChild(container);
+  };
+
   // each point: (x, y), where the value 'y' is stored at index 'x'
   this.swapPoints = function(a, b) {
     let tmp = a.style.top;
@@ -330,6 +353,37 @@ function AlgorithmVisualiser(app_root_id) {
     }
   };
 
+  this.qsSwap = function(a, b) {
+    console.log("a = " + a);
+    console.log("b = " + b);
+    let tmp = this.mappedRectangles[a].offsetHeight;
+    this.mappedRectangles[a].style.height = this.mappedRectangles[b].offsetHeight + "px";
+    this.mappedRectangles[b].style.height = tmp + "px";
+  };
+
+  this.partition = function(collection, startId, pivotId) {
+    let pivot =  parseInt(collection[pivotId].offsetHeight);
+    console.log("pivot = " + pivot);
+    let i = startId - 1;
+    for (let j = startId; j < pivotId; j++) {
+      if (collection[j].offsetHeight <= pivot) {
+        i++;
+        this.qsSwap(i, j);
+      }
+    }
+    this.qsSwap(i + 1, pivotId);
+    return i + 1;
+  }
+
+  this.quickSort = function(collection, startId, endId) {
+    if (startId < endId) {
+      let pivotId = this.partition(collection, startId, endId);
+      this.quickSort(collection, startId, pivotId - 1);
+      this.quickSort(collection, pivotId + 1, endId);
+    }
+  };
+
+
   this.elementPicked = function(ev) {
     // children[0] === <h5>
     this.algorithmPicker.children[0].textContent = ev.target.textContent;
@@ -341,6 +395,10 @@ function AlgorithmVisualiser(app_root_id) {
       case "Dijkstra's Shortest Path":
         this.clearCanvas();
         this.generateGrid(this.gridRows, this.gridColumns);
+        break;
+      case "Quick Sort":
+        this.clearCanvas();
+        this.randomizeDatapoints();
         break;
     }
   };
@@ -380,6 +438,10 @@ function AlgorithmVisualiser(app_root_id) {
       case "Bubble Sort":
         this.generateRandom(300, 3);
         break;
+      case "Quick Sort":
+        this.clearCanvas();
+        this.generateRandomRectangles(35);
+        break;
     }
     
   };
@@ -391,6 +453,9 @@ function AlgorithmVisualiser(app_root_id) {
         break;
       case "Dijkstra's Shortest Path":
         this.dijkstraShortestPath();
+        break;
+      case "Quick Sort":
+        this.quickSort(this.mappedRectangles, 0, this.mappedRectangles.length - 1);
         break;
     }
 
